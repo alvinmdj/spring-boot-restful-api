@@ -1,13 +1,12 @@
 package com.alvinmdj.springbootrestfulapi.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,4 +26,10 @@ public class User {
 
   @Column(name = "token_expired_at")
   private Long tokenExpiredAt;
+
+  // One user can have many contacts.
+  // The mappedBy property is what we use to tell which variable we are using
+  // to represent the parent class (User) in our child class (Contact).
+  @OneToMany(mappedBy = "user")
+  private List<Contact> contacts;
 }
