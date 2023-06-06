@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -32,4 +34,10 @@ public class Contact {
   // that maps to the primary key in the users table.
   @JoinColumn(name = "username", referencedColumnName = "username")
   private User user; // This variable is connected to 'mappedBy' in User entity.
+
+  // One contact can have many addresses.
+  // The mappedBy property is what we use to tell which variable we are using
+  // to represent the parent class (Contact) in our child class (Address).
+  @OneToMany(mappedBy = "contact")
+  private List<Address> addresses;
 }
