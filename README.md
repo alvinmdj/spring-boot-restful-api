@@ -1,6 +1,8 @@
 # Spring Boot RESTful API
 
-Spring Boot RESTful API 
+Spring Boot RESTful API for Contact Managements.
+
+API Specification can be found at `docs` directory.
 
 Dependencies:
 
@@ -9,6 +11,7 @@ Dependencies:
 - Validation
 - Lombok
 - MySQL Driver
+- Spring Test (default)
 
 ## Requirements
 
@@ -22,6 +25,8 @@ Dependencies:
 - [Spring Framework Guru - Hikari Configuration for MySQL in Spring Boot](https://springframework.guru/hikari-configuration-for-mysql-in-spring-boot-2/)
 - [Spring Security - Class BCrypt](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/crypto/bcrypt/BCrypt.html)
 - [Spring Security - GitHub - Bcrypt.java](https://github.com/spring-projects/spring-security/blob/main/crypto/src/main/java/org/springframework/security/crypto/bcrypt/BCrypt.java)
+- [Spring Guide - Testing the Web Layer](https://spring.io/guides/gs/testing-web/)
+- [Baeldung - Integration Testing in Spring](https://www.baeldung.com/integration-testing-in-spring)
 
 ## Manage Local MySQL (XAMPP)
 
