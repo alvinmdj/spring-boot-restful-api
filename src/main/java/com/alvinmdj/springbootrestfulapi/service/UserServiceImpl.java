@@ -2,6 +2,7 @@ package com.alvinmdj.springbootrestfulapi.service;
 
 import com.alvinmdj.springbootrestfulapi.entity.User;
 import com.alvinmdj.springbootrestfulapi.model.RegisterUserRequest;
+import com.alvinmdj.springbootrestfulapi.model.UserResponse;
 import com.alvinmdj.springbootrestfulapi.repository.UserRepository;
 import com.alvinmdj.springbootrestfulapi.security.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,5 +37,14 @@ public class UserServiceImpl implements UserService {
     user.setName(request.getName());
 
     userRepository.save(user);
+  }
+
+  // service already receive User data from UserArgumentResolver, no need to query to db here.
+  @Override
+  public UserResponse get(User user) {
+    return UserResponse.builder()
+      .username(user.getUsername())
+      .name(user.getName())
+      .build();
   }
 }
