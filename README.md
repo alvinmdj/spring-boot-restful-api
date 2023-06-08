@@ -27,6 +27,7 @@ Dependencies:
 - [Spring Security - GitHub - Bcrypt.java](https://github.com/spring-projects/spring-security/blob/main/crypto/src/main/java/org/springframework/security/crypto/bcrypt/BCrypt.java)
 - [Spring Guide - Testing the Web Layer](https://spring.io/guides/gs/testing-web/)
 - [Baeldung - Integration Testing in Spring](https://www.baeldung.com/integration-testing-in-spring)
+- [PZN Google Slides - Spring Web MVC - Argument Resolver](https://docs.google.com/presentation/d/14QkKKAC5Pbf9vJU8goV9BmctgK2WtcF9E_lWe2NWr3g/edit#slide=id.g238e37a1bdf_0_852)
 
 ## Manage Local MySQL (XAMPP)
 
