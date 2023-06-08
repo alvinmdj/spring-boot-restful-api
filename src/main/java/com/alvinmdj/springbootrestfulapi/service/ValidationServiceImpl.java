@@ -14,6 +14,7 @@ public class ValidationServiceImpl implements ValidationService {
   private Validator validator;
 
   // throw exception if request doesn't conforms with the model validation
+  @Override
   public void validate(Object request) {
     Set<ConstraintViolation<Object>> constraintViolations = validator.validate(request);
     if (constraintViolations.size() != 0) {

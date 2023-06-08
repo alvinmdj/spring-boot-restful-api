@@ -18,6 +18,7 @@ public class UserServiceImpl implements UserService {
   @Autowired
   private ValidationService validationService;
 
+  @Override
   @Transactional
   public void register(RegisterUserRequest request) {
     // validate request
