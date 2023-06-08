@@ -57,6 +57,6 @@ public class AuthServiceImpl implements AuthService {
     // 1 minute * 60    -> 1 hour
     // 1 hour * 24      -> 1 day
     // 1 day * 30       -> 30 days
-    return System.currentTimeMillis() + (1000 * 60 * 60 * 24 * 30);
+    return System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 30);
   }
 }
