@@ -8,7 +8,6 @@ import com.alvinmdj.springbootrestfulapi.repository.UserRepository;
 import com.alvinmdj.springbootrestfulapi.security.BCrypt;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ class AuthControllerTest {
   }
 
   @Test
-  void loginFailedUserNotFound() throws Exception {
+  void testLoginFailedUserNotFound() throws Exception {
     LoginUserRequest request = LoginUserRequest.builder()
       .username("hello")
       .password("password")
@@ -64,7 +63,7 @@ class AuthControllerTest {
   }
 
   @Test
-  void loginFailedWrongPassword() throws Exception {
+  void testLoginFailedWrongPassword() throws Exception {
     // create user
     User user = new User();
     user.setName("Test");
@@ -94,7 +93,7 @@ class AuthControllerTest {
   }
 
   @Test
-  void loginSuccess() throws Exception {
+  void testLoginSuccess() throws Exception {
     // create user
     User user = new User();
     user.setName("Test");
