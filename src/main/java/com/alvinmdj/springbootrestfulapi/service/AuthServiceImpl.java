@@ -51,6 +51,15 @@ public class AuthServiceImpl implements AuthService {
     }
   }
 
+  @Override
+  @Transactional
+  public void logout(User user) {
+    // set token & token expired to null
+    user.setToken(null);
+    user.setTokenExpiredAt(null);
+    userRepository.save(user);
+  }
+
   private Long next30Days() {
     // 1000 millisecond -> 1 second
     // 1 second * 60    -> 1 minute
