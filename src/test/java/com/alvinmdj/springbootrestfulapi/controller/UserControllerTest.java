@@ -2,6 +2,7 @@ package com.alvinmdj.springbootrestfulapi.controller;
 
 import com.alvinmdj.springbootrestfulapi.entity.User;
 import com.alvinmdj.springbootrestfulapi.model.RegisterUserRequest;
+import com.alvinmdj.springbootrestfulapi.model.UpdateUserRequest;
 import com.alvinmdj.springbootrestfulapi.model.UserResponse;
 import com.alvinmdj.springbootrestfulapi.model.WebResponse;
 import com.alvinmdj.springbootrestfulapi.repository.UserRepository;
@@ -199,6 +200,61 @@ class UserControllerTest {
       assertNull(response.getErrors());
       assertEquals("test", response.getData().getUsername());
       assertEquals("Test", response.getData().getName());
+    });
+  }
+
+  @Test
+  void testUpdateUserFailedUnauthorized() throws Exception {
+    mockMvc.perform(
+      patch("/api/users/current")
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+      status().isUnauthorized()
+    ).andDo(result -> {
+      WebResponse<UserResponse> response = objectMapper
+        .readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testUpdateUserSuccess() throws Exception {
+    User user = new User();
+    user.setName("Test");
+    user.setUsername("test");
+    user.setPassword("password");
+    user.setToken("test-token");
+    user.setTokenExpiredAt(System.currentTimeMillis() + 1000000000L);
+    userRepository.save(user);
+
+    UpdateUserRequest request = new UpdateUserRequest();
+    request.setName("Test Update");
+    request.setPassword("password-update");
+
+    mockMvc.perform(
+      patch("/api/users/current")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "test-token")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request))
+    ).andExpectAll(
+      status().isOk()
+    ).andDo(result -> {
+      WebResponse<UserResponse> response = objectMapper
+        .readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+        });
+
+      assertNull(response.getErrors());
+      assertEquals("Test Update", response.getData().getName());
+      assertEquals("test", response.getData().getUsername());
+
+      // check password also updated correctly
+      User userDb = userRepository.findById("test").orElse(null);
+      assertNotNull(userDb);
+      assertTrue(BCrypt.checkpw("password-update", userDb.getPassword()));
     });
   }
 }
