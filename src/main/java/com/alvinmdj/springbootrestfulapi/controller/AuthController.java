@@ -1,11 +1,13 @@
 package com.alvinmdj.springbootrestfulapi.controller;
 
+import com.alvinmdj.springbootrestfulapi.entity.User;
 import com.alvinmdj.springbootrestfulapi.model.LoginUserRequest;
 import com.alvinmdj.springbootrestfulapi.model.TokenResponse;
 import com.alvinmdj.springbootrestfulapi.model.WebResponse;
 import com.alvinmdj.springbootrestfulapi.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +26,19 @@ public class AuthController {
     TokenResponse tokenResponse = authService.login(request);
     return WebResponse.<TokenResponse>builder()
       .data(tokenResponse)
+      .build();
+  }
+
+  @DeleteMapping(
+    path = "/api/auth/logout",
+    produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  // requires X-API-TOKEN header value so we need to:
+  // set User entity as parameter to trigger UserArgumentResolver.
+  public WebResponse<String> logout(User user) {
+    authService.logout(user);
+    return WebResponse.<String>builder()
+      .data("OK")
       .build();
   }
 }
