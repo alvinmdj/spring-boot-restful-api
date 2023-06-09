@@ -2,6 +2,7 @@ package com.alvinmdj.springbootrestfulapi.controller;
 
 import com.alvinmdj.springbootrestfulapi.entity.User;
 import com.alvinmdj.springbootrestfulapi.model.RegisterUserRequest;
+import com.alvinmdj.springbootrestfulapi.model.UpdateUserRequest;
 import com.alvinmdj.springbootrestfulapi.model.UserResponse;
 import com.alvinmdj.springbootrestfulapi.model.WebResponse;
 import com.alvinmdj.springbootrestfulapi.service.UserService;
@@ -36,9 +37,25 @@ public class UserController {
     path = "/api/users/current",
     produces = MediaType.APPLICATION_JSON_VALUE
   )
-  // set User entity as parameter to trigger UserArgumentResolver
+  // requires X-API-TOKEN header value so we need to:
+  // set User entity as parameter to trigger UserArgumentResolver.
   public WebResponse<UserResponse> get(User user) {
     UserResponse userResponse = userService.get(user);
+
+    return WebResponse.<UserResponse>builder()
+      .data(userResponse)
+      .build();
+  }
+
+  @PatchMapping(
+    path = "/api/users/current",
+    consumes = MediaType.APPLICATION_JSON_VALUE,
+    produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  // requires X-API-TOKEN header value so we need to:
+  // set User entity as parameter to trigger UserArgumentResolver.
+  public WebResponse<UserResponse> update(User user, @RequestBody UpdateUserRequest request) {
+    UserResponse userResponse = userService.update(user, request);
 
     return WebResponse.<UserResponse>builder()
       .data(userResponse)
