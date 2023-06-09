@@ -2,6 +2,7 @@ package com.alvinmdj.springbootrestfulapi.service;
 
 import com.alvinmdj.springbootrestfulapi.entity.User;
 import com.alvinmdj.springbootrestfulapi.model.RegisterUserRequest;
+import com.alvinmdj.springbootrestfulapi.model.UpdateUserRequest;
 import com.alvinmdj.springbootrestfulapi.model.UserResponse;
 import com.alvinmdj.springbootrestfulapi.repository.UserRepository;
 import com.alvinmdj.springbootrestfulapi.security.BCrypt;
@@ -10,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Objects;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -45,6 +48,31 @@ public class UserServiceImpl implements UserService {
     return UserResponse.builder()
       .username(user.getUsername())
       .name(user.getName())
+      .build();
+  }
+
+  @Override
+  @Transactional
+  public UserResponse update(User user, UpdateUserRequest request) {
+    // validate request
+    validationService.validate(request);
+
+    // if new name exist
+    if (Objects.nonNull(request.getName())) {
+      user.setName(request.getName());
+    }
+
+    // if new password exist
+    if (Objects.nonNull(request.getPassword())) {
+      user.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
+    }
+
+    // save updated data if any
+    userRepository.save(user);
+
+    return UserResponse.builder()
+      .name(user.getName())
+      .username(user.getUsername())
       .build();
   }
 }
