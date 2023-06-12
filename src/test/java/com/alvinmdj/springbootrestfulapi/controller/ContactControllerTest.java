@@ -1,5 +1,6 @@
 package com.alvinmdj.springbootrestfulapi.controller;
 
+import com.alvinmdj.springbootrestfulapi.entity.Contact;
 import com.alvinmdj.springbootrestfulapi.entity.User;
 import com.alvinmdj.springbootrestfulapi.model.ContactResponse;
 import com.alvinmdj.springbootrestfulapi.model.CreateContactRequest;
@@ -16,6 +17,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.MockMvcBuilder.*;
@@ -104,6 +107,85 @@ class ContactControllerTest {
 
       // make sure created contact is exists in db
       assertTrue(contactRepository.existsById(response.getData().getId()));
+    });
+  }
+
+  @Test
+  void testGetContactUnauthorizedTokenNotFound() throws Exception {
+    mockMvc.perform(
+      get("/api/contacts/1")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "wrong-test-token")
+    ).andExpectAll(
+      status().isUnauthorized()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testGetContactUnauthorizedTokenNotSent() throws Exception {
+    mockMvc.perform(
+      get("/api/contacts/1")
+        .accept(MediaType.APPLICATION_JSON)
+        // no X-API-TOKEN header sent
+    ).andExpectAll(
+      status().isUnauthorized()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testGetContactNotFound() throws Exception {
+    mockMvc.perform(
+      get("/api/contacts/92138123123")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "test-token")
+    ).andExpectAll(
+      status().isNotFound()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testGetContactSuccess() throws Exception {
+    User user = userRepository.findById("test").orElse(null);
+
+    Contact contact = new Contact();
+    contact.setId(UUID.randomUUID().toString());
+    contact.setUser(user);
+    contact.setFirstName("Alvin");
+    contact.setLastName("Martin");
+    contact.setEmail("alvin@google.com");
+    contact.setPhone("2139213912");
+    contactRepository.save(contact);
+
+    mockMvc.perform(
+      get("/api/contacts/" + contact.getId())
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "test-token")
+    ).andExpectAll(
+      status().isOk()
+    ).andDo(result -> {
+      WebResponse<ContactResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      assertNull(response.getErrors());
+      assertEquals("Alvin", response.getData().getFirstName());
+      assertEquals("Martin", response.getData().getLastName());
+      assertEquals("alvin@google.com", response.getData().getEmail());
+      assertEquals("2139213912", response.getData().getPhone());
     });
   }
 }
