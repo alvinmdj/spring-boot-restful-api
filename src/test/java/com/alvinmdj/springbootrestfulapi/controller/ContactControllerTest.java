@@ -128,7 +128,7 @@ class ContactControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(request))
     ).andExpectAll(
-      status().isOk()
+      status().isCreated()
     ).andDo(result -> {
       WebResponse<ContactResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
       });

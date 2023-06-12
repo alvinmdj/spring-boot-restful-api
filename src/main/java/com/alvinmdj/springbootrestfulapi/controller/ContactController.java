@@ -6,7 +6,9 @@ import com.alvinmdj.springbootrestfulapi.model.CreateContactRequest;
 import com.alvinmdj.springbootrestfulapi.model.WebResponse;
 import com.alvinmdj.springbootrestfulapi.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,12 +23,16 @@ public class ContactController {
   )
   // requires X-API-TOKEN header value so we need to:
   // set User entity as parameter to trigger UserArgumentResolver.
-  public WebResponse<ContactResponse> create(User user, @RequestBody CreateContactRequest request) {
+  public ResponseEntity<WebResponse<ContactResponse>> create(User user, @RequestBody CreateContactRequest request) {
     ContactResponse contactResponse = contactService.create(user, request);
 
-    return WebResponse.<ContactResponse>builder()
-      .data(contactResponse)
-      .build();
+    return ResponseEntity
+      .status(HttpStatus.CREATED)
+      .body(
+        WebResponse.<ContactResponse>builder()
+          .data(contactResponse)
+          .build()
+      );
   }
 
   @GetMapping(
