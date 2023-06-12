@@ -58,6 +58,40 @@ class ContactControllerTest {
   }
 
   @Test
+  void testCreateContactUnauthorizedTokenNotFound() throws Exception {
+    mockMvc.perform(
+      post("/api/contacts")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "wrong-test-token")
+        .contentType(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+      status().isUnauthorized()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testCreateContactUnauthorizedTokenNotSent() throws Exception {
+    mockMvc.perform(
+      post("/api/contacts")
+        .accept(MediaType.APPLICATION_JSON)
+        // no X-API-TOKEN header sent
+        .contentType(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+      status().isUnauthorized()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
   void testCreateContactBadRequest() throws Exception {
     CreateContactRequest request = new CreateContactRequest();
     request.setFirstName("");
