@@ -4,6 +4,7 @@ import com.alvinmdj.springbootrestfulapi.entity.Contact;
 import com.alvinmdj.springbootrestfulapi.entity.User;
 import com.alvinmdj.springbootrestfulapi.model.ContactResponse;
 import com.alvinmdj.springbootrestfulapi.model.CreateContactRequest;
+import com.alvinmdj.springbootrestfulapi.model.UpdateContactRequest;
 import com.alvinmdj.springbootrestfulapi.repository.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,6 +52,26 @@ public class ContactServiceImpl implements ContactService {
       .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found"));
 
     // build & return response
+    return toContactResponse(contact);
+  }
+
+  @Override
+  @Transactional
+  public ContactResponse update(User user, UpdateContactRequest request) {
+    // validate request
+    validationService.validate(request);
+
+    // find contact for current user by contact id
+    Contact contact = contactRepository.findFirstByUserAndId(user, request.getId())
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found"));
+
+    // update contact
+    contact.setFirstName(request.getFirstName());
+    contact.setLastName(request.getLastName());
+    contact.setEmail(request.getEmail());
+    contact.setPhone(request.getPhone());
+    contactRepository.save(contact);
+
     return toContactResponse(contact);
   }
 
