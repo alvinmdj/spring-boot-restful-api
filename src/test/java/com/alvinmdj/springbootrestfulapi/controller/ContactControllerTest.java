@@ -324,4 +324,82 @@ class ContactControllerTest {
       assertTrue(contactRepository.existsById(response.getData().getId()));
     });
   }
+
+  @Test
+  void testDeleteContactUnauthorizedTokenNotFound() throws Exception {
+    mockMvc.perform(
+      delete("/api/contacts/1")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "wrong-test-token")
+        .contentType(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+      status().isUnauthorized()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testDeleteContactUnauthorizedTokenNotSent() throws Exception {
+    mockMvc.perform(
+      delete("/api/contacts/1")
+        .accept(MediaType.APPLICATION_JSON)
+        // no X-API-TOKEN header sent
+        .contentType(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+      status().isUnauthorized()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testDeleteContactNotFound() throws Exception {
+    mockMvc.perform(
+      delete("/api/contacts/92138123123")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "test-token")
+    ).andExpectAll(
+      status().isNotFound()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testDeleteContactSuccess() throws Exception {
+    User user = userRepository.findById("test").orElse(null);
+
+    Contact contact = new Contact();
+    contact.setId(UUID.randomUUID().toString());
+    contact.setUser(user);
+    contact.setFirstName("Alvin");
+    contact.setLastName("Martin");
+    contact.setEmail("alvin@google.com");
+    contact.setPhone("2139213912");
+    contactRepository.save(contact);
+
+    mockMvc.perform(
+      delete("/api/contacts/" + contact.getId())
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "test-token")
+    ).andExpectAll(
+      status().isOk()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      assertNull(response.getErrors());
+      assertEquals("OK", response.getData());
+    });
+  }
 }
