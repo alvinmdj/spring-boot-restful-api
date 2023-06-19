@@ -5,6 +5,7 @@ import com.alvinmdj.springbootrestfulapi.entity.Contact;
 import com.alvinmdj.springbootrestfulapi.entity.User;
 import com.alvinmdj.springbootrestfulapi.model.AddressResponse;
 import com.alvinmdj.springbootrestfulapi.model.CreateAddressRequest;
+import com.alvinmdj.springbootrestfulapi.model.UpdateAddressRequest;
 import com.alvinmdj.springbootrestfulapi.repository.AddressRepository;
 import com.alvinmdj.springbootrestfulapi.repository.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,31 @@ public class AddressServiceImpl implements AddressService{
     // find address
     Address address = addressRepository.findFirstByContactAndId(contact, addressId)
       .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Address not found"));;
+
+    return toAddressResponse(address);
+  }
+
+  @Override
+  @Transactional
+  public AddressResponse update(User user, UpdateAddressRequest request) {
+    // validate request
+    validationService.validate(request);
+
+    // find contact
+    Contact contact = contactRepository.findFirstByUserAndId(user, request.getContactId())
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found"));
+
+    // find address
+    Address address = addressRepository.findFirstByContactAndId(contact, request.getAddressId())
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Address not found"));
+
+    // update address
+    address.setStreet(request.getStreet());
+    address.setCity(request.getCity());
+    address.setProvince(request.getProvince());
+    address.setCountry(request.getCountry());
+    address.setPostalCode(request.getPostalCode());
+    addressRepository.save(address);
 
     return toAddressResponse(address);
   }
