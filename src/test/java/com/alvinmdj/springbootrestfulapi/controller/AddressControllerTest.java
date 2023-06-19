@@ -73,6 +73,14 @@ class AddressControllerTest {
     contactRepository.save(contact);
   }
 
+  @AfterEach
+  void tearDown() {
+    // always delete all after each test
+    addressRepository.deleteAll();
+    contactRepository.deleteAll();
+    userRepository.deleteAll();
+  }
+
   @Test
   void testCreateAddressUnauthorizedTokenNotFound() throws Exception {
     mockMvc.perform(
