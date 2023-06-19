@@ -1,5 +1,6 @@
 package com.alvinmdj.springbootrestfulapi.controller;
 
+import com.alvinmdj.springbootrestfulapi.entity.Address;
 import com.alvinmdj.springbootrestfulapi.entity.Contact;
 import com.alvinmdj.springbootrestfulapi.entity.User;
 import com.alvinmdj.springbootrestfulapi.model.AddressResponse;
@@ -118,7 +119,7 @@ class AddressControllerTest {
     ).andExpectAll(
       status().isBadRequest()
     ).andDo(result -> {
-      WebResponse<AddressResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
       });
 
       assertNotNull(response.getErrors());
@@ -154,6 +155,105 @@ class AddressControllerTest {
       assertEquals(request.getPostalCode(), response.getData().getPostalCode());
 
       assertTrue(addressRepository.existsById(response.getData().getId()));
+    });
+  }
+
+  @Test
+  void testGetAddressUnauthorizedTokenNotFound() throws Exception {
+    mockMvc.perform(
+      get("/api/contacts/test-contact-id/addresses/1")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "wrong-test-token")
+        .contentType(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+      status().isUnauthorized()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testGetAddressUnauthorizedTokenNotSent() throws Exception {
+    mockMvc.perform(
+      get("/api/contacts/test-contact-id/addresses/1")
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+      // no X-API-TOKEN header sent
+    ).andExpectAll(
+      status().isUnauthorized()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testGetAddressNotFound() throws Exception {
+    // contact not found
+    mockMvc.perform(
+      get("/api/contacts/wrong-contact-id/addresses/1")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "test-token")
+    ).andExpectAll(
+      status().isNotFound()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+
+    // address not found
+    mockMvc.perform(
+      get("/api/contacts/test-contact-id/addresses/1")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "test-token")
+    ).andExpectAll(
+      status().isNotFound()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testGetAddressSuccess() throws Exception {
+    Contact contact = contactRepository.findById("test-contact-id").orElseThrow();
+
+    Address address = new Address();
+    address.setId("test-address-id");
+    address.setContact(contact);
+    address.setStreet("Street 123");
+    address.setCity("Jakarta");
+    address.setProvince("DKI Jakarta");
+    address.setCountry("Indonesia");
+    address.setPostalCode("12345");
+    addressRepository.save(address);
+
+    mockMvc.perform(
+      get("/api/contacts/test-contact-id/addresses/test-address-id")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "test-token")
+    ).andExpectAll(
+      status().isOk()
+    ).andDo(result -> {
+      WebResponse<AddressResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      assertNull(response.getErrors());
+      assertEquals(address.getId(), response.getData().getId());
+      assertEquals(address.getStreet(), response.getData().getStreet());
+      assertEquals(address.getCity(), response.getData().getCity());
+      assertEquals(address.getProvince(), response.getData().getProvince());
+      assertEquals(address.getCountry(), response.getData().getCountry());
+      assertEquals(address.getPostalCode(), response.getData().getPostalCode());
     });
   }
 }
