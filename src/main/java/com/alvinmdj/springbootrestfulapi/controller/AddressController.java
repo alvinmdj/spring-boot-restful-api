@@ -6,7 +6,9 @@ import com.alvinmdj.springbootrestfulapi.model.CreateAddressRequest;
 import com.alvinmdj.springbootrestfulapi.model.WebResponse;
 import com.alvinmdj.springbootrestfulapi.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,7 +23,7 @@ public class AddressController {
   )
   // requires X-API-TOKEN header value so we need to:
   // set User entity as parameter to trigger UserArgumentResolver.
-  public WebResponse<AddressResponse> create(
+  public ResponseEntity<WebResponse<AddressResponse>> create(
     User user,
     @RequestBody CreateAddressRequest request,
     @PathVariable("contactId") String contactId
@@ -30,9 +32,13 @@ public class AddressController {
 
     AddressResponse addressResponse = addressService.create(user, request);
 
-    return WebResponse.<AddressResponse>builder()
-      .data(addressResponse)
-      .build();
+    return ResponseEntity
+      .status(HttpStatus.CREATED)
+      .body(
+        WebResponse.<AddressResponse>builder()
+          .data(addressResponse)
+          .build()
+      );
   }
 
   @GetMapping(

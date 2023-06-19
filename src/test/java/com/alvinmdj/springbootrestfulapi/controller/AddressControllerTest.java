@@ -142,7 +142,7 @@ class AddressControllerTest {
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(request))
     ).andExpectAll(
-      status().isOk()
+      status().isCreated()
     ).andDo(result -> {
       WebResponse<AddressResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
       });
