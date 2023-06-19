@@ -6,4 +6,6 @@ import com.alvinmdj.springbootrestfulapi.model.CreateAddressRequest;
 
 public interface AddressService {
   AddressResponse create(User user, CreateAddressRequest request);
+
+  AddressResponse get(User user, String contactId, String addressId);
 }

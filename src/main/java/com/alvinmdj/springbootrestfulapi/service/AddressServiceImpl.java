@@ -10,6 +10,7 @@ import com.alvinmdj.springbootrestfulapi.repository.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class AddressServiceImpl implements AddressService{
   private ValidationService validationService;
 
   @Override
+  @Transactional
   public AddressResponse create(User user, CreateAddressRequest request) {
     // validate request
     validationService.validate(request);
@@ -45,6 +47,20 @@ public class AddressServiceImpl implements AddressService{
     address.setPostalCode(request.getPostalCode());
 
     addressRepository.save(address);
+
+    return toAddressResponse(address);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public AddressResponse get(User user, String contactId, String addressId) {
+    // find contact
+    Contact contact = contactRepository.findFirstByUserAndId(user, contactId)
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found"));
+
+    // find address
+    Address address = addressRepository.findFirstByContactAndId(contact, addressId)
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Address not found"));;
 
     return toAddressResponse(address);
   }
