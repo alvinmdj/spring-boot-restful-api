@@ -12,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 public class AddressController {
   @Autowired
@@ -98,6 +100,20 @@ public class AddressController {
 
     return WebResponse.<String>builder()
       .data("OK")
+      .build();
+  }
+
+  @GetMapping(
+    path = "/api/contacts/{contactId}/addresses",
+    produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  // requires X-API-TOKEN header value so we need to:
+  // set User entity as parameter to trigger UserArgumentResolver.
+  public WebResponse<List<AddressResponse>> get(User user, @PathVariable("contactId") String contactId) {
+    List<AddressResponse> addressResponses = addressService.list(user, contactId);
+
+    return WebResponse.<List<AddressResponse>>builder()
+      .data(addressResponses)
       .build();
   }
 }
