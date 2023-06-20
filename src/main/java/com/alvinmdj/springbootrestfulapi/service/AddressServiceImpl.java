@@ -101,4 +101,18 @@ public class AddressServiceImpl implements AddressService{
       .postalCode(address.getPostalCode())
       .build();
   }
+
+  @Override
+  @Transactional
+  public void delete(User user, String contactId, String addressId) {
+    // find contact
+    Contact contact = contactRepository.findFirstByUserAndId(user, contactId)
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found"));
+
+    // find address
+    Address address = addressRepository.findFirstByContactAndId(contact, addressId)
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Address not found"));
+
+    addressRepository.delete(address);
+  }
 }
