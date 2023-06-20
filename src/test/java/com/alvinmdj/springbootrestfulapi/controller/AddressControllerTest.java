@@ -367,4 +367,98 @@ class AddressControllerTest {
       assertTrue(addressRepository.existsById(response.getData().getId()));
     });
   }
+
+  @Test
+  void testDeleteAddressUnauthorizedTokenNotFound() throws Exception {
+    mockMvc.perform(
+      delete("/api/contacts/test-contact-id/addresses/1")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "wrong-test-token")
+    ).andExpectAll(
+      status().isUnauthorized()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testDeleteAddressUnauthorizedTokenNotSent() throws Exception {
+    mockMvc.perform(
+      delete("/api/contacts/test-contact-id/addresses/1")
+        .accept(MediaType.APPLICATION_JSON)
+        // no X-API-TOKEN header sent
+    ).andExpectAll(
+      status().isUnauthorized()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testDeleteAddressNotFound() throws Exception {
+    // contact not found
+    mockMvc.perform(
+      delete("/api/contacts/wrong-contact-id/addresses/1")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "test-token")
+    ).andExpectAll(
+      status().isNotFound()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+
+    // address not found
+    mockMvc.perform(
+      delete("/api/contacts/test-contact-id/addresses/1")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "test-token")
+    ).andExpectAll(
+      status().isNotFound()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      assertNotNull(response.getErrors());
+    });
+  }
+
+  @Test
+  void testDeleteAddressSuccess() throws Exception {
+    Contact contact = contactRepository.findById("test-contact-id").orElseThrow();
+
+    Address address = new Address();
+    address.setId("test-address-id");
+    address.setContact(contact);
+    address.setStreet("Street 123");
+    address.setCity("Jakarta");
+    address.setProvince("DKI Jakarta");
+    address.setCountry("Indonesia");
+    address.setPostalCode("12345");
+    addressRepository.save(address);
+
+    mockMvc.perform(
+      delete("/api/contacts/test-contact-id/addresses/test-address-id")
+        .accept(MediaType.APPLICATION_JSON)
+        .header("X-API-TOKEN", "test-token")
+    ).andExpectAll(
+      status().isOk()
+    ).andDo(result -> {
+      WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      assertNull(response.getErrors());
+      assertEquals("OK", response.getData());
+
+      assertFalse(addressRepository.existsById("test-address-id"));
+    });
+  }
 }
