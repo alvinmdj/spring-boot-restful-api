@@ -82,4 +82,22 @@ public class AddressController {
       .data(addressResponse)
       .build();
   }
+
+  @DeleteMapping(
+    path = "/api/contacts/{contactId}/addresses/{addressId}",
+    produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  // requires X-API-TOKEN header value so we need to:
+  // set User entity as parameter to trigger UserArgumentResolver.
+  public WebResponse<String> delete(
+    User user,
+    @PathVariable("contactId") String contactId,
+    @PathVariable("addressId") String addressId
+  ) {
+    addressService.delete(user, contactId, addressId);
+
+    return WebResponse.<String>builder()
+      .data("OK")
+      .build();
+  }
 }
